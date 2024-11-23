@@ -1,84 +1,62 @@
-/* styles.css */
-body {
-    font-family: Arial, sans-serif;
-    background-color: #333;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 30vh;
-}
+// script.js
+document.addEventListener("DOMContentLoaded", () => {
+    const input = document.getElementById("item-input");
+    const addButton = document.getElementById("add-button");
+    const groceryList = document.getElementById("grocery-list");
 
-.container {
-    background: whitesmoke;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    padding: 20px;
-    max-width: 400px;
-    width: 100%;
-    text-align: center;
-}
+    // Load items from local storage
+    function loadItems() {
+        const savedItems = JSON.parse(localStorage.getItem("groceryItems")) || [];
+        savedItems.forEach(addItemToDOM);
+    }
 
-h1 {
-    color: #333;
-    font-size: 2.5rem;
-}
+    // Save items to local storage
+    function saveItems() {
+        const items = [];
+        document.querySelectorAll("#grocery-list li").forEach((li) => {
+            items.push(li.firstChild.textContent); // Get the text of the item
+        });
+        localStorage.setItem("groceryItems", JSON.stringify(items));
+    }
 
-.input-section {
-    display: flex;
-    margin-bottom: 20px;
-}
+    // Add item to the DOM
+    function addItemToDOM(itemText) {
+        const listItem = document.createElement("li");
+        listItem.textContent = itemText;
 
-#item-input {
-    flex: 1;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 16px;
-}
+        // Add delete button to each item
+        const deleteButton = document.createElement("button");
+        deleteButton.textContent = "Remove";
+        deleteButton.addEventListener("click", () => {
+            listItem.remove();
+            saveItems(); // Save the updated list
+        });
 
-#add-button {
-    margin-left: 10px;
-    padding: 10px 20px;
-    border: none;
-    background-color: #28a745;
-    color: whitesmoke;
-    border-radius: 4px;
-    font-size: 16px;
-    cursor: pointer;
-}
+        listItem.appendChild(deleteButton);
+        groceryList.appendChild(listItem);
+    }
 
-#add-button:hover {
-    background-color: #218838;
-}
+    // Add new item
+    addButton.addEventListener("click", () => {
+        const itemText = input.value.trim();
 
-#grocery-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
+        if (itemText === "") {
+            alert("Please enter an item.");
+            return;
+        }
 
-#grocery-list li {
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    margin-bottom: 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #f8f9fa;
-}
+        addItemToDOM(itemText);
+        saveItems(); // Save the updated list
+        input.value = ""; // Clear input field
+    });
 
-#grocery-list li button {
-    background-color: #dc3545;
-    color: whitesmoke;
-    border: none;
-    border-radius: 4px;
-    padding: 5px 10px;
-    cursor: pointer;
-}
+    // Allow adding items by pressing Enter
+    input.addEventListener("keypress", (event) => {
+        if (event.key === "Enter") {
+            addButton.click();
+        }
+    });
 
-#grocery-list li button:hover {
-    background-color: #c82333;
-}
+    // Initialize the app
+    loadItems();
+});
